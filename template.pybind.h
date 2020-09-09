@@ -1,7 +1,8 @@
+#include "pybind_model_registry.h"
 #include <pybind11/pybind11.h>
 #include "{{ util.module_cfg_header_name(module) }}"
 
-PYBIND11_MODULE({{ python_module_name }}, m) {
+ONEFLOW_PYBIND11_MODEL({{ python_module_name }}, m) {
 {% if util.module_has_package(module) %}
   using namespace {{ "::".join(util.module_package_list(module)) }}::cfg;
 {% else %}
