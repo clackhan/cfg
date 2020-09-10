@@ -1,4 +1,4 @@
-from cfg.demo1 import demo
+from oneflow_api import demo
 foo = demo.Foo()
 print("---------[ default value ]--------")
 print("foo.name():", foo.name())

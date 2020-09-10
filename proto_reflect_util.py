@@ -15,6 +15,9 @@ class ProtoReflectionUtil:
 
     def module_cfg_header_name(self, module):
         return module.name[0:-5] + "cfg.h"
+    
+    def module_get_python_module_path(self, module):
+        return module.name[0:-6].replace('/', '.')
 
     def module_header_macro_lock(self, module):
         return _ToValidVarName("CFG_%s_"% self.module_cfg_header_name(module).upper())

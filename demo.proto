@@ -13,10 +13,6 @@ message Bar {
   }
 }
 
-message Baz {
-  optional string bazname = 1 [default = "undefined-bazname"];
-}
-
 message Foo {
   optional string name = 1 [default="unnamed"];
   required int64 int_value = 10; 
@@ -33,7 +29,6 @@ message Foo {
   repeated Enum enum_values = 105; 
   oneof oneof_type {
     Bar of_bar = 2;
-    Baz of_baz = 3;
     string of_string_value = 4;
     bytes of_bytes_value = 5;
     int64 of_int_value = 6;
@@ -41,7 +36,6 @@ message Foo {
   }
   oneof oneof_expermental_type {
     Bar of_expermental_bar = 8;
-    Baz of_expermental_baz = 9;
     string of_expermental_string_value = 13;
     bytes of_expermental_bytes_value = 14;
     
