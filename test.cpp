@@ -4,7 +4,11 @@
 int main() {
   {
     cfg::Foo foo;
+    foo.set_name("Tom");
     std::cout << foo.name() << std::endl;
+    std::string* name = foo.mutable_name();
+    name = new std::string("Iris");
+    std::cout << *name << std::endl;
     std::cout << foo.bar().nickname() << std::endl;
     foo.mutable_bar()->set_nickname("Jacky");
     std::cout << foo.bar().nickname() << std::endl;

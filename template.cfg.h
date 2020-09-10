@@ -322,7 +322,6 @@ class _{{ cls.name }}_ {
   ::std::string* mutable_{{ util.field_name(field) }}() {
     if(!has_{{ util.field_name(field) }}()) {
       clear_{{ util.field_oneof_name(field) }}();
-      {{ util.field_oneof_name(field) }}_.{{ util.field_name(field) }}_ = ::std::string();
     }
     {{ util.field_oneof_name(field) }}_case_ = {{ util.oneof_type_field_enum_value_name(field) }};
     return  &{{ util.field_oneof_name(field) }}_.{{ util.field_name(field) }}_;
