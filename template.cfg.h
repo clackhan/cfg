@@ -635,7 +635,6 @@ class {{ cls.name }} final : public Const{{ cls.name }} {
   }
 {% endif %}{# field string type #}
 {% endif %}{# field message type #}
-
 {# map begin#}
 {% elif util.field_is_map(field) %}
   // repeated field {{ util.field_name(field) }}

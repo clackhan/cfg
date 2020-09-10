@@ -125,7 +125,6 @@ ONEFLOW_PYBIND11_MODULE("{{ util.module_get_python_module_path(module) }}", m) {
 {% else %}
     registry.def("{{ util.field_name(field) }}", &Const{{ cls.name }}::{{ util.field_name(field) }});
 {% endif %}{# field message type #}
-
 {# map begin #}
 {% elif util.field_is_map(field) %}
     registry.def("{{ util.field_name(field) }}_size", &Const{{ cls.name }}::{{ util.field_name(field) }}_size);

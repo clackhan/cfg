@@ -37,8 +37,7 @@ message Foo {
   oneof oneof_expermental_type {
     Bar of_expermental_bar = 8;
     string of_expermental_string_value = 13;
-    bytes of_expermental_bytes_value = 14;
-    
+    bytes of_expermental_bytes_value = 14; 
   }
   map<int64, int64> map_int_int = 106;
   map<int64, int64> map_temp = 107;
