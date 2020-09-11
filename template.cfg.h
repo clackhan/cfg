@@ -46,6 +46,12 @@ class Const{{ util.field_repeated_container_name(field) }} : public ::oneflow::c
   Const{{ util.field_repeated_container_name(field) }}() = default;
   ~Const{{ util.field_repeated_container_name(field) }}() = default;
 
+  bool operator==(const Const{{ util.field_repeated_container_name(field) }}& other) const {
+    return *__SharedPtr__() == *other.__SharedPtr__();
+  }
+  bool operator<(const Const{{ util.field_repeated_container_name(field) }}& other) const {
+    return *__SharedPtr__() < *other.__SharedPtr__();
+  }
   // used by pybind11 only
   ::std::shared_ptr<Const{{ util.field_repeated_container_name(field) }}> __SharedConst__() const {
     return ::std::make_shared<Const{{ util.field_repeated_container_name(field) }}>(__SharedPtr__());
@@ -66,6 +72,12 @@ class {{ util.field_repeated_container_name(field) }} final : public Const{{ uti
   }
   void CopyFrom(const {{ util.field_repeated_container_name(field) }}& other) {
     ::oneflow::cfg::_RepeatedField_<{{ util.field_type_name(field) }}>::CopyFrom(other);
+  }
+  bool operator==(const {{ util.field_repeated_container_name(field) }}& other) const {
+    return *__SharedPtr__() == *other.__SharedPtr__();
+  }
+  bool operator<(const {{ util.field_repeated_container_name(field) }}& other) const {
+    return *__SharedPtr__() < *other.__SharedPtr__();
   }
   // used by pybind11 only
   ::std::shared_ptr<{{ util.field_repeated_container_name(field) }}> __SharedMutable__() {
@@ -92,6 +104,12 @@ class Const{{ util.field_map_container_name(field) }} : public ::oneflow::cfg::_
   Const{{ util.field_map_container_name(field) }}() = default;
   ~Const{{ util.field_map_container_name(field) }}() = default;
 
+  bool operator==(const Const{{ util.field_map_container_name(field) }}& other) const {
+    return *__SharedPtr__() == *other.__SharedPtr__();
+  }
+  bool operator<(const Const{{ util.field_map_container_name(field) }}& other) const {
+    return *__SharedPtr__() < *other.__SharedPtr__();
+  }
   // used by pybind11 only
   const {{ util.field_map_value_type_name(field) }}& Get(const {{ util.field_map_key_type_name(field) }}& key) const {
     return at(key);
@@ -124,6 +142,12 @@ class {{ util.field_map_container_name(field) }} final : public Const{{ util.fie
   }
   void CopyFrom(const {{ util.field_map_container_name(field) }}& other) {
     ::oneflow::cfg::_MapField_<{{ util.field_map_pair_type_name(field) }}>::CopyFrom(other);
+  }
+  bool operator==(const {{ util.field_map_container_name(field) }}& other) const {
+    return *__SharedPtr__() == *other.__SharedPtr__();
+  }
+  bool operator<(const {{ util.field_map_container_name(field) }}& other) const {
+    return *__SharedPtr__() < *other.__SharedPtr__();
   }
   // used by pybind11 only
   ::std::shared_ptr<{{ util.field_map_container_name(field) }}> __SharedMutable__() {
@@ -417,6 +441,77 @@ class _{{ cls.name }}_ {
   } {{ util.oneof_name(oneof) }}_;
   {{ util.oneof_enum_name(oneof) }} {{ util.oneof_name(oneof) }}_case_;
 {% endfor %}{# message_oneof #}
+ 
+ public:
+  bool operator==(const _{{ cls.name }}_& other) const {
+{% for field in util.message_type_fields(cls) %}
+{% if util.field_has_required_or_optional_label(field) %}
+    if (!(has_{{ util.field_name(field) }}() == other.has_{{ util.field_name(field) }}() && 
+        {{ util.field_name(field) }}() == other.{{ util.field_name(field) }}())) {
+      return false;
+    }
+{% elif util.field_has_repeated_label(field) or util.field_is_map(field) %}
+    if (!({{ util.field_name(field) }}() == other.{{ util.field_name(field) }}())) {
+      return false;
+    }
+{% endif %}{# field_label #}
+{% endfor %}{# fields #}
+{% for oneof in util.message_type_oneofs(cls) %}
+    if (!({{ util.oneof_name(oneof) }}_case() == other.{{ util.oneof_name(oneof) }}_case())) {
+      return false;
+    }
+    switch ({{ util.oneof_name(oneof) }}_case()) {
+{% for field in util.oneof_type_fields(oneof) %}
+      case {{ util.oneof_type_field_enum_value_name(field) }}: {
+        if (!({{ util.field_name(field) }}() == other.{{ util.field_name(field) }}())) {
+          return false;
+        }
+        break;
+      }
+{% endfor %}{# oneof_field #}
+      case {{ util.oneof_name(oneof).upper() }}_NOT_SET: {
+        break;
+      }
+    }
+{% endfor %}{# oneofs #}
+    return true;
+  }
+
+  bool operator<(const _{{ cls.name }}_& other) const {
+{% for field in util.message_type_fields(cls) %}
+{% if util.field_has_required_or_optional_label(field) %}
+    if (!(has_{{ util.field_name(field) }}() == other.has_{{ util.field_name(field) }}())) {
+      return has_{{ util.field_name(field) }}() < other.has_{{ util.field_name(field) }}();
+    }
+    if (!({{ util.field_name(field) }}() == other.{{ util.field_name(field) }}())) {
+      return {{ util.field_name(field) }}() < other.{{ util.field_name(field) }}();
+    }
+{% elif util.field_has_repeated_label(field) or util.field_is_map(field) %}
+    if (!({{ util.field_name(field) }}() == other.{{ util.field_name(field) }}())) {
+      return {{ util.field_name(field) }}() < other.{{ util.field_name(field) }}();
+    }
+{% endif %}{# field_label #}
+{% endfor %}{# fields #}
+{% for oneof in util.message_type_oneofs(cls) %}
+    if (!({{ util.oneof_name(oneof) }}_case() == other.{{ util.oneof_name(oneof) }}_case())) {
+      return {{ util.oneof_name(oneof) }}_case() < other.{{ util.oneof_name(oneof) }}_case();
+    }
+    switch ({{ util.oneof_name(oneof) }}_case()) {
+{% for field in util.oneof_type_fields(oneof) %}
+      case {{ util.oneof_type_field_enum_value_name(field) }}: {
+        if (!({{ util.field_name(field) }}() == other.{{ util.field_name(field) }}())) {
+          return {{ util.field_name(field) }}() < other.{{ util.field_name(field) }}();
+        }
+        break;
+      }
+{% endfor %}{# oneof_field #}
+      case {{ util.oneof_name(oneof).upper() }}_NOT_SET: {
+        break;
+      }
+    }
+{% endfor %}{# oneofs #}
+    return false;
+  }
 };
 
 class {{ cls.name }};
@@ -516,6 +611,14 @@ class Const{{ cls.name }} {
   int64_t __Id__() const { return reinterpret_cast<int64_t>(data_.get()); }
   // the data of `this` will be moved to the result which is mutable
   ::std::shared_ptr<{{ cls.name }}> __Move__();
+ public:
+  bool operator==(const Const{{ cls.name }}& other) const {
+    return *__SharedPtrOrDefault__() == *other.__SharedPtrOrDefault__();
+  }
+
+  bool operator<(const Const{{ cls.name }}& other) const {
+    return *__SharedPtrOrDefault__() < *other.__SharedPtrOrDefault__();
+  }
  protected:
   const ::std::unique_ptr<_{{ cls.name }}_>& __SharedPtrOrDefault__() const {
     if (*data_) { return *data_; }
@@ -544,6 +647,13 @@ class {{ cls.name }} final : public Const{{ cls.name }} {
   {{ cls.name }}() = default;
   ~{{ cls.name }}() = default;
 
+  bool operator==(const {{ cls.name }}& other) const {
+    return *__SharedPtrOrDefault__() == *other.__SharedPtrOrDefault__();
+  }
+
+  bool operator<(const {{ cls.name }}& other) const {
+    return *__SharedPtrOrDefault__() < *other.__SharedPtrOrDefault__();
+  }
   void Clear() {
     if (data_) { data_->reset(); }
   }

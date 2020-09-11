@@ -1,5 +1,6 @@
-#include "pybind_module_registry.h"
 #include <pybind11/pybind11.h>
+#include <pybind11/operators.h>
+#include "pybind_module_registry.h"
 #include "{{ util.module_cfg_header_name(module) }}"
 
 ONEFLOW_PYBIND11_MODULE("{{ util.module_get_python_module_path(module) }}", m) {
@@ -26,6 +27,8 @@ ONEFLOW_PYBIND11_MODULE("{{ util.module_get_python_module_path(module) }}", m) {
   {
     pybind11::class_<Const{{ util.field_repeated_container_name(field) }}, std::shared_ptr<Const{{ util.field_repeated_container_name(field) }}>> registry(m, "Const{{ util.field_repeated_container_name(field) }}");
     registry.def("__len__", &Const{{ util.field_repeated_container_name(field) }}::size);
+    registry.def(pybind11::self == pybind11:: self);
+    registry.def(pybind11::self < pybind11:: self);
 {% if util.field_is_message_type(field) %}
     registry.def("__getitem__", (::std::shared_ptr<Const{{ util.field_type_name(field) }}> (Const{{ util.field_repeated_container_name(field) }}::*)(::std::size_t) const)&Const{{ util.field_repeated_container_name(field) }}::__SharedConst__);
     registry.def("Get", (::std::shared_ptr<Const{{ util.field_type_name(field) }}> (Const{{ util.field_repeated_container_name(field) }}::*)(::std::size_t) const)&Const{{ util.field_repeated_container_name(field) }}::__SharedConst__);
@@ -42,6 +45,8 @@ ONEFLOW_PYBIND11_MODULE("{{ util.module_get_python_module_path(module) }}", m) {
     registry.def("CopyFrom", (void ({{ util.field_repeated_container_name(field) }}::*)(const Const{{ util.field_repeated_container_name(field) }}&))&{{ util.field_repeated_container_name(field) }}::CopyFrom);
     registry.def("CopyFrom", (void ({{ util.field_repeated_container_name(field) }}::*)(const {{ util.field_repeated_container_name(field) }}&))&{{ util.field_repeated_container_name(field) }}::CopyFrom);
     registry.def("Add", (void ({{ util.field_repeated_container_name(field) }}::*)(const {{ util.field_type_name(field) }}&))&{{ util.field_repeated_container_name(field) }}::Add);
+    registry.def(pybind11::self == pybind11:: self);
+    registry.def(pybind11::self < pybind11:: self);
 {% if util.field_is_message_type(field) %}
     registry.def("__getitem__", (::std::shared_ptr<{{ util.field_type_name(field) }}> ({{ util.field_repeated_container_name(field) }}::*)(::std::size_t))&{{ util.field_repeated_container_name(field) }}::__SharedMutable__);
     registry.def("Get", (::std::shared_ptr<{{ util.field_type_name(field) }}> ({{ util.field_repeated_container_name(field) }}::*)(::std::size_t))&{{ util.field_repeated_container_name(field) }}::__SharedMutable__);
@@ -58,6 +63,8 @@ ONEFLOW_PYBIND11_MODULE("{{ util.module_get_python_module_path(module) }}", m) {
   {
     pybind11::class_<Const{{ util.field_map_container_name(field) }}, std::shared_ptr<Const{{ util.field_map_container_name(field) }}>> registry(m, "Const{{ util.field_map_container_name(field) }}");
     registry.def("__len__", &Const{{ util.field_map_container_name(field) }}::size);
+    registry.def(pybind11::self == pybind11:: self);
+    registry.def(pybind11::self < pybind11:: self);
 {% if util.field_is_message_type(util.field_map_value_type(field)) %}
     // lifetime safety is ensured by making iterators for std::pair<const {{ util.field_map_key_type_name(field) }}, std::shared_ptr<Const{{ util.field_map_value_type_name(field) }}>>
     registry.def("__iter__", [](const ::std::shared_ptr<Const{{ util.field_map_container_name(field) }}>& s) { return pybind11::make_iterator(s->shared_const_begin(), s->shared_const_end()); });
@@ -76,7 +83,8 @@ ONEFLOW_PYBIND11_MODULE("{{ util.module_get_python_module_path(module) }}", m) {
     registry.def("Clear", &{{ util.field_map_container_name(field) }}::Clear);
     registry.def("CopyFrom", (void ({{ util.field_map_container_name(field) }}::*)(const Const{{ util.field_map_container_name(field) }}&))&{{ util.field_map_container_name(field) }}::CopyFrom);
     registry.def("CopyFrom", (void ({{ util.field_map_container_name(field) }}::*)(const {{ util.field_map_container_name(field) }}&))&{{ util.field_map_container_name(field) }}::CopyFrom);
-
+    registry.def(pybind11::self == pybind11:: self);
+    registry.def(pybind11::self < pybind11:: self);
 {% if util.field_is_message_type(util.field_map_value_type(field)) %}
     // lifetime safety is ensured by making iterators for std::pair<const {{ util.field_map_key_type_name(field) }}, std::shared_ptr<{{ util.field_map_value_type_name(field) }}>>
     registry.def("__iter__", [](const ::std::shared_ptr<{{ util.field_map_container_name(field) }}>& s) { return pybind11::make_iterator(s->shared_mut_begin(), s->shared_mut_end()); });
@@ -101,6 +109,8 @@ ONEFLOW_PYBIND11_MODULE("{{ util.module_get_python_module_path(module) }}", m) {
     // the data of `self` will be moved to the result which is always mutable
     registry.def("Move", &Const{{ cls.name }}::__Move__);
     registry.def("__id__", &{{ cls.name }}::__Id__);
+    registry.def(pybind11::self == pybind11:: self);
+    registry.def(pybind11::self < pybind11:: self);
 {% for field in util.message_type_fields(cls) %}
 
 {% if util.field_has_required_or_optional_label(field) %}
@@ -150,6 +160,8 @@ ONEFLOW_PYBIND11_MODULE("{{ util.module_get_python_module_path(module) }}", m) {
     registry.def("CopyFrom", (void ({{ cls.name }}::*)(const {{ cls.name }}&))&{{ cls.name }}::CopyFrom);
     registry.def("Move", &{{ cls.name }}::__Move__);
     registry.def("__id__", &{{ cls.name }}::__Id__);
+    registry.def(pybind11::self == pybind11:: self);
+    registry.def(pybind11::self < pybind11:: self);
 
 {% for oneof in util.message_type_oneofs(cls) %}
     registry.def_property_readonly_static("{{ util.oneof_name(oneof).upper() }}_NOT_SET",
