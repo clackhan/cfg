@@ -3,7 +3,7 @@
 
 int main() {
   {
-    cfg::Foo foo;
+    oneflow::cfg::Foo foo;
     foo.set_name("Tom");
     std::cout << foo.name() << std::endl;
     std::string* name = foo.mutable_name();
@@ -25,7 +25,7 @@ int main() {
     std::cout << foo.of_int_value() << std::endl;
     std::cout << foo.has_of_int_value() << std::endl;
     std::cout << "After set enum value(Enum::kEnum0)  ..." << std::endl;
-    foo.set_of_enum_value(cfg::Enum::kEnum0);
+    foo.set_of_enum_value(oneflow::cfg::Enum::kEnum0);
     std::cout << foo.oneof_type_case() << std::endl;
     std::cout << foo.of_enum_value() << std::endl;
     std::cout << foo.has_of_enum_value() << std::endl;

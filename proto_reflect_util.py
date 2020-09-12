@@ -16,12 +16,21 @@ class ProtoReflectionUtil:
 
     def module_cfg_header_name(self, module):
         return module.name[0:-5] + "cfg.h"
+
+    def module_proto_header_name(self, module):
+        return module.name[0:-5] + "pb.h"
+
+    def module_cfg_convert_header_name(self, module):
+        return module.name[0:-5] + "cfg.proto.convert.h"
     
     def module_get_python_module_path(self, module):
         return module.name[0:-6].replace('/', '.')
 
     def module_header_macro_lock(self, module):
         return _ToValidVarName("CFG_%s_"% self.module_cfg_header_name(module).upper())
+
+    def module_proto_convert_header_macro_lock(self, module):
+        return _ToValidVarName("CFG_%s_"% self.module_cfg_convert_header_name(module).upper())
 
     def module_enum_types(self, module):
         return module.enum_types_by_name.values()
@@ -124,6 +133,15 @@ class ProtoReflectionUtil:
     def field_map_value_type_name(self, field):
         return self.field_type_name(field.message_type.fields_by_name['value'])
 
+    def field_map_value_type_is_message(self, field):
+        return self.field_is_message_type(field.message_type.fields_by_name['value'])
+
+    def field_map_value_type_is_enum(self, field):
+        return self.field_is_enum_type(field.message_type.fields_by_name['value'])
+    
+    def field_map_value_type_enum_name(self, field):
+        return self.field_enum_name(field.message_type.fields_by_name['value'])
+    
     def field_map_value_type(self, field):
         return field.message_type.fields_by_name['value']
 
@@ -148,6 +166,12 @@ class ProtoReflectionUtil:
         module_prefix = self.module_header_macro_lock(field.containing_type.file)
         type_name = self.field_map_pair_type_name_with_underline(field)
         return _ToValidVarName("_%s_MapField_%s_"%(module_prefix, type_name))
+
+    def field_is_enum_type(self, field):
+        return field.enum_type is not None
+
+    def field_enum_name(self, field):
+        return field.enum_type.name
 
     def field_scalar_type_name(self, field):
         if field.cpp_type == field.CPPTYPE_BOOL:

@@ -1,12 +1,15 @@
 syntax="proto2";
+package oneflow;
 
 enum Enum {
-  kInvalidEnum = 1;
+  kInvalidEnum = 0;
   kEnum0 = 2;
 }
 
 message Bar {
-  optional string nickname = 1 [default = "undefined-nickname"];
+  required string name = 1 [default = "undefined-name"];
+  optional string nickname = 4 [default = "undefined-nickname"];
+  optional Enum opt_enum_value = 5;
   oneof of_bar {
     int64 of_int_value = 2;
     float of_float_value = 3;
@@ -42,4 +45,5 @@ message Foo {
   map<int64, int64> map_int_int = 106;
   map<int64, int64> map_temp = 107;
   map<int64, Bar> map_bar = 108;
+  map<int64, Enum> map_enum = 109;
 }
