@@ -1,4 +1,4 @@
-# include "pybind_module_registry.h"
+#include "pybind_module_registry.h"
 
 namespace oneflow {
 
@@ -11,7 +11,7 @@ void Pybind11ModuleRegistry::Register(std::string module_path,
   CHECK(sub_module_.emplace(module_path, build_sub_module).second) << "Registered failed";
 }
 
-void Pybind11ModuleRegistry::Import(pybind11::module& m) {
+void Pybind11ModuleRegistry::ImportAll(pybind11::module& m) {
   for (auto& pair : sub_module_) {
     BuildSubModule(pair.first, m, pair.second);
   }
