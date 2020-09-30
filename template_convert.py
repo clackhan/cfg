@@ -10,9 +10,12 @@ parser.add_argument("-dst_hpp", "--dst_hpp_path", type=str, required=True)
 parser.add_argument("-dst_cpp", "--dst_cpp_path", type=str, required=True)
 parser.add_argument("-dst_pybind", "--dst_pybind_path", type=str, required=True)
 parser.add_argument("-sub_module", "--sub_module_path", type=str, required=True)
-# parser.add_argument("-loader", "--loader_path", type=str, required=True)
+parser.add_argument(
+    "-of_proto_python", "--of_proto_python_dir", type=str, required=True
+)
 args = parser.parse_args()
 
+sys.path.append(args.of_proto_python_dir)
 demo = importlib.import_module(args.sub_module_path)
 
 

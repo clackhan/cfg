@@ -28,3 +28,17 @@ m[2]=5
 
 print(foo.map_int_int_size())
 print(dict(m))
+
+print("=================================")
+bar = demo.Bar()
+bar.set_name("Jack")
+bar.set_nickname("Honey")
+bar.set_of_int_value(10)
+print(bar)
+
+foo = demo.Foo()
+foo.set_name("Tom")
+foo.set_opt_int_value(20)
+foo.mutable_bar().CopyFrom(bar)
+foo.set_of_int_value(25)
+print(foo)
