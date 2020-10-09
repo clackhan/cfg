@@ -1,5 +1,6 @@
 import re
 
+
 class ProtoReflectionUtil:
     def __init__(self):
         self.visited_repeated_field_type_name_ = set()
@@ -15,8 +16,14 @@ class ProtoReflectionUtil:
         return filter(lambda x: len(x) > 0, module.package.split("."))
 
     def module_package_namespace(self, module):
-        return '::' + module.package.replace('.', '::')
+        if module.package:
+            return '::' + module.package.replace('.', '::')
+        else:
+            return ''
     
+    def module_package_cfg_namespace(self, module):
+        return self.module_package_namespace(module) + "::cfg"
+
     def module_cfg_header_name(self, module):
         return module.name[0:-5] + "cfg.h"
 
@@ -31,28 +38,35 @@ class ProtoReflectionUtil:
 
     def module_enum_types(self, module):
         return module.enum_types_by_name.values()
-    
+
     def module_nested_message_types(self, module):
         def FlattenMessageTypes(message_types):
             for msg_type in message_types:
                 for nested_msg_type in FlattenMessageTypes(msg_type.nested_types):
                     yield nested_msg_type
                 yield msg_type
-        return [msg_type for msg_type in FlattenMessageTypes(module.message_types_by_name.values())]
+
+        return [
+            msg_type
+            for msg_type in FlattenMessageTypes(module.message_types_by_name.values())
+        ]
 
     def class_name(self, cls):
         package = cls.file.package
-        return (cls.full_name)[len(package) + 1 :].replace('.', '_')
-    
+        if package:
+            return (cls.full_name)[len(package) + 1 :].replace('.', '_')
+        else:
+            return (cls.full_name)[len(package) :].replace('.', '_')
+
     def class_name_under_line(self, cls):
-        return '_' + self.class_name(cls) + '_'
+        return "_" + self.class_name(cls) + "_"
 
     def class_name_const(self, cls):
-        return 'Const' + self.class_name(cls)
+        return "Const" + self.class_name(cls)
 
     def class_is_map_entry(self, cls):
-        return self.class_name(cls).endswith('Entry')
-    
+        return self.class_name(cls).endswith("Entry")
+
     def enum_name(self, enum):
         return enum.name
 
@@ -89,7 +103,7 @@ class ProtoReflectionUtil:
     def oneof_type_field_enum_value_name(self, field):
         return "k" + self._underline_name_to_camel(field.name)
 
-    def oneof_type_field_enum_value_number(self, field):
+    def field_number(self, field):
         return field.number
 
     def field_oneof_name(self, field):
@@ -114,7 +128,7 @@ class ProtoReflectionUtil:
 
     def field_has_oneof_label(self, field):
         return field.containing_oneof is not None
-    
+
     def field_has_map_label(self, field):
         return field.label == field.LABEL_REPEATED and self._field_is_map_entry(field)
 
@@ -149,9 +163,11 @@ class ProtoReflectionUtil:
 
     def field_map_value_type_name(self, field):
         return self.field_type_name(field.message_type.fields_by_name["value"])
-    
+
     def field_map_value_type_name_with_cfg_namespace(self, field):
-        return self.field_type_name_with_cfg_namespace(field.message_type.fields_by_name["value"])
+        return self.field_type_name_with_cfg_namespace(
+            field.message_type.fields_by_name["value"]
+        )
 
     def field_map_value_type_is_message(self, field):
         return self.field_is_message_type(field.message_type.fields_by_name["value"])
@@ -166,31 +182,40 @@ class ProtoReflectionUtil:
         return field.message_type.fields_by_name["value"]
 
     def field_map_pair_type_name(self, field):
-        return f"{self.field_map_key_type_name(field)}, {self.field_map_value_type_name(field)}"
+        return "%s, %s" % (
+            self.field_map_key_type_name(field),
+            self.field_map_value_type_name(field),
+        )
 
     def field_map_pair_type_name_with_cfg_namespace(self, field):
-        return f"{self.field_map_key_type_name(field)}, {self.field_map_value_type_name_with_cfg_namespace(field)}"
+        return "%s, %s" % (
+            self.field_map_key_type_name(field),
+            self.field_map_value_type_name_with_cfg_namespace(field),
+        )
 
     def field_is_message_type(self, field):
         return field.message_type is not None
 
-    def field_is_string(self, field):
-        return self.field_type_name(field) == "::std::string"
-    
-    def field_is_message_type_or_string(self, field):
-        return self.field_is_message_type(field) or self.field_is_string(field)
-
     def field_message_type_name(self, field):
         package = field.message_type.file.package
-        return (field.message_type.full_name)[len(package) + 1 :].replace('.', '_')
+        if package:
+            return (field.message_type.full_name)[len(package) + 1 :].replace('.', '_')
+        else:
+            return (field.message_type.full_name)[len(package) :].replace('.', '_')
     
     def field_message_type_name_with_cfg_namespace(self, field):
         package = field.message_type.file.package
-        return '::' + package.replace('.', '::') + '::cfg::' + (field.message_type.full_name)[len(package) + 1 :].replace('.', '_')
+        if package:
+            return '::' + package.replace('.', '::') + '::cfg::' + (field.message_type.full_name)[len(package) + 1 :].replace('.', '_')
+        else:
+            return '::cfg::' + (field.message_type.full_name)[len(package) :].replace('.', '_')
 
     def field_message_type_name_with_proto_namespace(self, field):
         package = field.message_type.file.package
-        return '::' + package.replace('.', '::') + '::' + (field.message_type.full_name)[len(package) + 1 :].replace('.', '_')
+        if package:
+            return '::' + package.replace('.', '::') + '::' + (field.message_type.full_name)[len(package) + 1 :].replace('.', '_')
+        else:
+            return '::' + (field.message_type.full_name)[len(package) :].replace('.', '_')
 
     def field_repeated_container_name(self, field):
         module_prefix = self.module_header_macro_lock(field.containing_type.file)
@@ -198,7 +223,10 @@ class ProtoReflectionUtil:
         return _ToValidVarName("_%s_RepeatedField_%s_" % (module_prefix, type_name))
 
     def field_map_pair_type_name_with_underline(self, field):
-        return f"{self.field_map_key_type_name(field)}_{self.field_map_value_type_name(field)}"
+        return "%s_%s" % (
+            self.field_map_key_type_name(field),
+            self.field_map_value_type_name(field),
+        )
 
     def field_map_container_name(self, field):
         module_prefix = self.module_header_macro_lock(field.containing_type.file)
@@ -273,12 +301,14 @@ class ProtoReflectionUtil:
         camel_name = ""
         for sub_name in sub_name_list:
             camel_name = camel_name + sub_name[0].upper() + sub_name[1:]
-        
+
         flag = False
         length = len(camel_name)
         for i in range(length):
             if flag and camel_name[i].isalpha():
-                camel_name = camel_name[0 : i] + camel_name[i].upper() + camel_name[i + 1 : ]
+                camel_name = (
+                    camel_name[0:i] + camel_name[i].upper() + camel_name[i + 1 :]
+                )
                 flag = False
             if camel_name[i].isdigit():
                 flag = True

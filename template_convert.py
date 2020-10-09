@@ -39,13 +39,13 @@ def convert_hpp(dst_hpp_path):
     dst_file.close()
 
 
-def convert_cpp(dst_cpp_path):
-    if not os.path.exists(os.path.dirname(dst_cpp_path)):
-        if os.path.dirname(dst_cpp_path):
-            os.makedirs(os.path.dirname(dst_cpp_path))
-    dst_file = open(dst_cpp_path, "w")
-    dst_file.write(JinjaRender(demo, "template.cfg.cpp"))
-    dst_file.close()
+# def convert_cpp(dst_cpp_path):
+#     if not os.path.exists(os.path.dirname(dst_cpp_path)):
+#         if os.path.dirname(dst_cpp_path):
+#             os.makedirs(os.path.dirname(dst_cpp_path))
+#     dst_file = open(dst_cpp_path, "w")
+#     dst_file.write(JinjaRender(demo, "template.cfg.cpp"))
+#     dst_file.close()
 
 
 def convert_pybind(dst_pybind_path):
@@ -59,7 +59,7 @@ def convert_pybind(dst_pybind_path):
 
 def main():
     convert_hpp(args.dst_hpp_path)
-    convert_cpp(args.dst_cpp_path)
+    # convert_cpp(args.dst_cpp_path)
     convert_pybind(args.dst_pybind_path)
 
 
