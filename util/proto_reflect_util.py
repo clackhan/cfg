@@ -3,8 +3,10 @@ import re
 
 class ProtoReflectionUtil:
     def __init__(self):
-        self.visited_repeated_field_type_name_ = set()
-        self.visited_map_field_type_name_ = set()
+        self.declared_repeated_field_type_name_ = set()
+        self.declared_map_field_type_name_ = set()
+        self.defined_repeated_field_type_name_ = set()
+        self.defined_map_field_type_name_ = set()
 
     def module_dependencies(self, module):
         return module.dependencies
@@ -17,10 +19,10 @@ class ProtoReflectionUtil:
 
     def module_package_namespace(self, module):
         if module.package:
-            return '::' + module.package.replace('.', '::')
+            return "::" + module.package.replace(".", "::")
         else:
-            return ''
-    
+            return ""
+
     def module_package_cfg_namespace(self, module):
         return self.module_package_namespace(module) + "::cfg"
 
@@ -54,9 +56,9 @@ class ProtoReflectionUtil:
     def class_name(self, cls):
         package = cls.file.package
         if package:
-            return (cls.full_name)[len(package) + 1 :].replace('.', '_')
+            return (cls.full_name)[len(package) + 1 :].replace(".", "_")
         else:
-            return (cls.full_name)[len(package) :].replace('.', '_')
+            return (cls.full_name).replace(".", "_")
 
     def class_name_under_line(self, cls):
         return "_" + self.class_name(cls) + "_"
@@ -68,7 +70,11 @@ class ProtoReflectionUtil:
         return self.class_name(cls).endswith("Entry")
 
     def enum_name(self, enum):
-        return enum.name
+        package = enum.file.package
+        if package:
+            return (enum.full_name)[len(package) + 1 :].replace(".", "_")
+        else:
+            return (enum.full_name).replace(".", "_")
 
     def enum_values(self, enum):
         return enum.values
@@ -84,6 +90,9 @@ class ProtoReflectionUtil:
 
     def message_type_oneofs(self, cls):
         return cls.oneofs
+
+    def message_type_enums(self, cls):
+        return cls.enum_types
 
     def oneof_name(self, oneof):
         return oneof.name
@@ -109,6 +118,10 @@ class ProtoReflectionUtil:
     def field_oneof_name(self, field):
         assert self.field_has_oneof_label(field)
         return field.containing_oneof.name
+
+    def field_oneof_struct_name(self, field):
+        assert self.field_has_oneof_label(field)
+        return self._underline_name_to_camel(field.containing_oneof.name) + "Struct"
 
     def field_has_required_label(self, field):
         return field.label == field.LABEL_REQUIRED
@@ -153,9 +166,18 @@ class ProtoReflectionUtil:
             return self.field_message_type_name(field)
         return self.field_scalar_type_name(field)
 
+    def field_type_name_const_with_cfg_namespace(self, field):
+        if self.field_is_message_type(field):
+            return self.field_message_type_const_name_with_cfg_namespace(field)
+        elif self.field_is_enum_type(field):
+            return self.field_enum_name_with_cfg_namespace(field)
+        return self.field_scalar_type_name(field)
+
     def field_type_name_with_cfg_namespace(self, field):
         if self.field_is_message_type(field):
             return self.field_message_type_name_with_cfg_namespace(field)
+        elif self.field_is_enum_type(field):
+            return self.field_enum_name_with_cfg_namespace(field)
         return self.field_scalar_type_name(field)
 
     def field_map_key_type_name(self, field):
@@ -199,23 +221,43 @@ class ProtoReflectionUtil:
     def field_message_type_name(self, field):
         package = field.message_type.file.package
         if package:
-            return (field.message_type.full_name)[len(package) + 1 :].replace('.', '_')
+            return (field.message_type.full_name)[len(package) + 1 :].replace(".", "_")
         else:
-            return (field.message_type.full_name)[len(package) :].replace('.', '_')
-    
+            return (field.message_type.full_name).replace(".", "_")
+
     def field_message_type_name_with_cfg_namespace(self, field):
         package = field.message_type.file.package
         if package:
-            return '::' + package.replace('.', '::') + '::cfg::' + (field.message_type.full_name)[len(package) + 1 :].replace('.', '_')
+            return "::%s::cfg::%s" % (
+                package.replace(".", "::"),
+                (field.message_type.full_name)[len(package) + 1 :].replace(".", "_"),
+            )
         else:
-            return '::cfg::' + (field.message_type.full_name)[len(package) :].replace('.', '_')
+            return "::cfg::%s" % ((field.message_type.full_name).replace(".", "_"))
+
+    def field_message_type_const_name_with_cfg_namespace(self, field):
+        package = field.message_type.file.package
+        if package:
+            return "::%s::cfg::%s%s" % (
+                package.replace(".", "::"),
+                "Const",
+                (field.message_type.full_name)[len(package) + 1 :].replace(".", "_"),
+            )
+        else:
+            return "::cfg::%s%s" % (
+                "Const",
+                (field.message_type.full_name).replace(".", "_"),
+            )
 
     def field_message_type_name_with_proto_namespace(self, field):
         package = field.message_type.file.package
         if package:
-            return '::' + package.replace('.', '::') + '::' + (field.message_type.full_name)[len(package) + 1 :].replace('.', '_')
+            return "::%s::%s" % (
+                package.replace(".", "::"),
+                (field.message_type.full_name)[len(package) + 1 :].replace(".", "_"),
+            )
         else:
-            return '::' + (field.message_type.full_name)[len(package) :].replace('.', '_')
+            return "::%s" % ((field.message_type.full_name).replace(".", "_"))
 
     def field_repeated_container_name(self, field):
         module_prefix = self.module_header_macro_lock(field.containing_type.file)
@@ -237,13 +279,51 @@ class ProtoReflectionUtil:
         return field.enum_type is not None
 
     def field_enum_name(self, field):
-        return field.enum_type.name
+        return self.enum_name(field.enum_type)
+
+    def field_enum_cfg_namespace(self, field):
+        if self.field_has_map_label(field):
+            package = field.message_type.fields_by_name["value"].enum_type.file.package
+        else:
+            package = field.enum_type.file.package
+
+        if package:
+            return "::" + package.replace(".", "::") + "::cfg"
+        else:
+            return "::cfg"
+
+        if package:
+            return "::" + package.replace(".", "::") + "::cfg"
+        else:
+            return "::cfg"
+
+    def field_enum_name_with_cfg_namespace(self, field):
+        package = field.enum_type.file.package
+        if package:
+            return (
+                "::"
+                + package.replace(".", "::")
+                + "::cfg::"
+                + self.enum_name(field.enum_type)
+            )
+        else:
+            return "::cfg::" + self.enum_name(field.enum_type)
+
+    def field_enum_name_with_proto_namespace(self, field):
+        package = field.enum_type.file.package
+        if package:
+            return "::" + package.replace(".", "::") + self.enum_name(field.enum_type)
+        else:
+            return "::" + self.enum_name(field.enum_type)
+
+    def field_is_string_type(self, field):
+        return self.field_type_name(field) == "::std::string"
 
     def field_scalar_type_name(self, field):
         if field.cpp_type == field.CPPTYPE_BOOL:
             return "bool"
         if field.cpp_type == field.CPPTYPE_ENUM:
-            return field.enum_type.name
+            return self.enum_name(field.enum_type)
         if field.cpp_type == field.CPPTYPE_DOUBLE:
             return "double"
         if field.cpp_type == field.CPPTYPE_FLOAT:
@@ -263,19 +343,35 @@ class ProtoReflectionUtil:
         raise NotImplementedError("field.cpp_type is %s" % field.cpp_type)
 
     # return True if added first time
-    def add_visited_repeated_field_type_name(self, field):
+    def add_declared_repeated_field_type_name(self, field):
         field_type_name = self.field_type_name(field)
-        if field_type_name in self.visited_repeated_field_type_name_:
+        if field_type_name in self.declared_repeated_field_type_name_:
             return False
-        self.visited_repeated_field_type_name_.add(field_type_name)
+        self.declared_repeated_field_type_name_.add(field_type_name)
         return True
 
     # return True if added first time
-    def add_visited_map_field_type_name(self, field):
+    def add_declared_map_field_type_name(self, field):
         field_map_pair_type_name = self.field_map_pair_type_name(field)
-        if field_map_pair_type_name in self.visited_map_field_type_name_:
+        if field_map_pair_type_name in self.declared_map_field_type_name_:
             return False
-        self.visited_map_field_type_name_.add(field_map_pair_type_name)
+        self.declared_map_field_type_name_.add(field_map_pair_type_name)
+        return True
+
+    # return True if added first time
+    def add_defined_repeated_field_type_name(self, field):
+        field_type_name = self.field_type_name(field)
+        if field_type_name in self.defined_repeated_field_type_name_:
+            return False
+        self.defined_repeated_field_type_name_.add(field_type_name)
+        return True
+
+    # return True if added first time
+    def add_defined_map_field_type_name(self, field):
+        field_map_pair_type_name = self.field_map_pair_type_name(field)
+        if field_map_pair_type_name in self.defined_map_field_type_name_:
+            return False
+        self.defined_map_field_type_name_.add(field_map_pair_type_name)
         return True
 
     def _field_is_map_entry(self, field):

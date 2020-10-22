@@ -3,8 +3,8 @@
 #include "demo.pb.h"
 
 int main() {
-  oneflow::cfg::Foo foo;
-  oneflow::cfg::Bar bar;
+  ::cfg::Foo foo;
+  ::cfg::Bar bar;
   bar.set_name("Jack");
   bar.set_nickname("baobao");
   foo.set_name("Tom");
@@ -15,7 +15,7 @@ int main() {
   std::cout << foo.bar().nickname() << std::endl;
   foo.mutable_bar()->set_nickname("Jacky");
   std::cout << foo.bar().nickname() << std::endl;
-  *foo.mutable_bar() = oneflow::cfg::Bar();
+  *foo.mutable_bar() = ::cfg::Bar();
   std::cout << "After = " << foo.bar().nickname() << std::endl;
   std::cout << foo.optional_bar().nickname() << std::endl;
   foo.mutable_optional_bar()->set_nickname("Jacky");
@@ -24,28 +24,28 @@ int main() {
   std::cout << foo.oneof_type_case() << std::endl;
   std::cout << foo.of_int_value() << std::endl;
   std::cout << foo.has_of_int_value() << std::endl;
-  std::cout << "After set int value(20)  ..." << std::endl;
+  std::cout << "After set of_int_value(20)  ..." << std::endl;
   foo.set_of_int_value(20);
   std::cout << foo.oneof_type_case() << std::endl;
   std::cout << foo.of_int_value() << std::endl;
-  std::cout << foo.has_of_int_value() << std::endl;
-  std::cout << "After set enum value(Enum::kEnum0)  ..." << std::endl;
-  foo.set_of_enum_value(oneflow::cfg::Enum::kEnum0);
+  std::cout << foo.has_of_enum_value() << std::endl;
+  std::cout << "After set of_enum_value(Enum::kEnum0)  ..." << std::endl;
+  foo.set_of_enum_value(cfg::Enum::kEnum0);
   std::cout << foo.oneof_type_case() << std::endl;
   std::cout << foo.of_enum_value() << std::endl;
   std::cout << foo.has_of_enum_value() << std::endl;
-  std::cout << "After set string value(binbin)  ..." << std::endl;
+  std::cout << "After set of_string_value(binbin)  ..." << std::endl;
   foo.set_of_string_value(std::string("binbin"));
   std::cout << foo.oneof_type_case() << std::endl;
   std::cout << foo.of_string_value() << std::endl;
   std::cout << foo.has_of_string_value() << std::endl;
-  std::cout << "After set bytes value(xinqi)  ..." << std::endl;
+  std::cout << "After set of_bytes_value(xinqi)  ..." << std::endl;
   foo.set_of_bytes_value(std::string("xinqi"));
   std::cout << foo.oneof_type_case() << std::endl;
   std::cout << foo.of_bytes_value() << std::endl;
   std::cout << foo.has_of_bytes_value() << std::endl;
   std::cout << "After mutable_of_bar()..." << std::endl;
-  foo.mutable_of_bar()->set_nickname("hongyu");
+  foo.mutable_of_bar()->set_nickname(std::string("hongyu"));
   std::cout << foo.oneof_type_case() << std::endl;
   std::cout << foo.of_bar().nickname() << std::endl;
   std::cout << foo.has_of_bar() << std::endl;
@@ -79,12 +79,12 @@ int main() {
   std::cout << "bar: " << std::endl;
   std::cout << bar.DebugString() << std::endl;
   std::cout << "--------------------------------------" << std::endl;
-  oneflow::Bar pro_bar;
+  Bar pro_bar;
   bar.ToProto(&pro_bar);
   std::cout << "pro_bar: " << std::endl;
   std::cout << pro_bar.DebugString() << std::endl;
   std::cout << "--------------------------------------" << std::endl;
-  oneflow::cfg::Bar cfg_bar(pro_bar);
+  cfg::Bar cfg_bar(pro_bar);
   std::cout << "cfg_bar: " << std::endl;
   std::cout << cfg_bar.DebugString() << std::endl;
 
@@ -92,14 +92,22 @@ int main() {
   std::cout << "foo: " << std::endl;
   std::cout << foo.DebugString() << std::endl;
   std::cout << "--------------------------------------" << std::endl;
-  oneflow::Foo pro_foo;
+  Foo pro_foo;
   foo.ToProto(&pro_foo);
   std::cout << "pro_foo: " << std::endl;
   std::cout << pro_foo.DebugString() << std::endl;
-  oneflow::cfg::Foo cfg_foo(pro_foo);
+  
   std::cout << "--------------------------------------" << std::endl;
+  cfg::Foo cfg_foo(pro_foo);
   std::cout << "cfg_foo: " << std::endl;
+  
+  auto* ss = cfg_foo.add_bars();
+  ss->set_name("zhaowei");
+  auto* aa = cfg_foo.add_bars();
+  aa->set_name("binbin");
   std::cout << cfg_foo.DebugString() << std::endl;
+
+  std::cout << cfg::Foo::ONEOF_TYPE_NOT_SET << std::endl;
 
   return 0;
 }
