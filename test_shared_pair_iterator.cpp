@@ -6,8 +6,8 @@
 struct FooMap {
 
   using map_type = std::map<int64_t, cfg::Foo>;
-  using shared_mut_iterator = ::oneflow::cfg::_SharedMutPairIterator_<map_type, cfg::Foo>;
-  using shared_const_iterator = ::oneflow::cfg::_SharedConstPairIterator_<map_type, cfg::ConstFoo>;
+  using shared_mut_iterator = ::cfg::_SharedMutPairIterator_<map_type, cfg::Foo>;
+  using shared_const_iterator = ::cfg::_SharedConstPairIterator_<map_type, cfg::ConstFoo>;
 
   shared_mut_iterator shared_mut_begin() { return foo_map.begin(); }
   shared_mut_iterator shared_mut_end() { return foo_map.end(); }

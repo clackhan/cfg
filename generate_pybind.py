@@ -1,4 +1,9 @@
 import render
-import demo_pb2 as demo
+import importlib
 
-print(render.JinjaRender(demo, "template.pybind.cpp", python_module_name='demo'))
+demo = importlib.import_module('demo_pb2')
+
+
+dst_file = open("demo.pybind.cpp", 'w')
+dst_file.write(render.JinjaRender(demo, "template.pybind.cpp"))
+dst_file.close()

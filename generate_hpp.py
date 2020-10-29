@@ -1,4 +1,10 @@
 import render
-import demo_pb2 as demo
+import importlib
 
-print(render.JinjaRender(demo, "template.cfg.h"))
+demo = importlib.import_module('demo_pb2')
+
+
+dst_file = open("demo.cfg.h", 'w')
+dst_file.write(render.JinjaRender(demo, "template.cfg.h"))
+dst_file.close()
+
