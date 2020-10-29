@@ -35,6 +35,7 @@ def convert_hpp(dst_hpp_path):
         if os.path.dirname(dst_hpp_path):
             os.makedirs(os.path.dirname(dst_hpp_path))
     dst_file = open(dst_hpp_path, "w")
+    tmp_file = open("tmp.cfg.h", "w")
     dst_file.write(JinjaRender(demo, "template.cfg.h"))
     dst_file.close()
 
