@@ -23,7 +23,7 @@ python3 template_convert.py              \
 
 g++ -O3 -Wall -shared -std=c++11 -fPIC \
   `python3 -m pybind11 --includes` pybind_module_registry.cpp demo.pb.cc demo.cfg.cpp demo.pybind.cpp oneflow_api.pybind.cpp \
-  -lglog -lgflags -lpthread -I include -I ~/oneflow/third_party/protobuf/include \
+  -I include -I ~/oneflow/third_party/protobuf/include \
   ~/oneflow/third_party/protobuf/lib/libprotobuf.a  -o oneflow_api`python3-config --extension-suffix`
 
 g++ -std=c++11 demo.pb.cc demo.cfg.cpp test.cpp -I include -I ~/oneflow/third_party/protobuf/include \
