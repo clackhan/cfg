@@ -35,7 +35,6 @@ def convert_hpp(dst_hpp_path):
         if os.path.dirname(dst_hpp_path):
             os.makedirs(os.path.dirname(dst_hpp_path))
     dst_file = open(dst_hpp_path, "w")
-    tmp_file = open("tmp.cfg.h", "w")
     dst_file.write(JinjaRender(demo, "template.cfg.h"))
     dst_file.close()
 
@@ -54,7 +53,7 @@ def convert_pybind(dst_pybind_path):
         if os.path.dirname(dst_pybind_path):
             os.makedirs(os.path.dirname(dst_pybind_path))
     dst_file = open(dst_pybind_path, "w")
-    dst_file.write(JinjaRender(demo, "template.pybind.cpp"))
+    dst_file.write(JinjaRender(demo, "template.cfg.pybind.cpp"))
     dst_file.close()
 
 

@@ -1,7 +1,10 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/operators.h>
-#include "pybind_module_registry.h"
+#include "oneflow/cfg/pybind_module_registry.h"
 #include "{{ util.module_cfg_header_name(module) }}"
+{% for dependency in util.module_dependencies(module) %}
+#include "{{ util.module_cfg_header_name(dependency) }}"
+{% endfor %}
 
 ONEFLOW_CFG_PYBIND11_MODULE("{{ util.module_get_python_module_path(module) }}", m) {
 {% if util.module_has_package(module) %}

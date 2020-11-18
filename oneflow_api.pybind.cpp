@@ -1,5 +1,5 @@
 #include <pybind11/pybind11.h>
-#include "pybind_module_registry.h"
+#include "oneflow/cfg/pybind_module_registry.h"
 
 
 PYBIND11_MODULE(oneflow_api, m) {
