@@ -39,19 +39,27 @@ int main() {
   std::cout << foo.oneof_type_case() << std::endl;
   std::cout << foo.of_string_value() << std::endl;
   std::cout << foo.has_of_string_value() << std::endl;
+  
+  std::cout << "After mutable_of_bar()..." << std::endl;
+  ::cfg::Bar* of_bar = foo.mutable_of_bar();
+  std::cout << "of_bar == nullptr: " << of_bar <<  std::endl;
+  foo.mutable_of_bar()->set_nickname(std::string("hongyu"));
+  std::cout << foo.oneof_type_case() << std::endl;
+  std::cout << of_bar->nickname() << std::endl;
+  std::cout << foo.has_of_bar() << std::endl;
+  // std::cout << "After clear_of_bar()..." << std::endl;
+  // foo.clear_of_bar();
+  // std::cout << foo.oneof_type_case() << std::endl;
   std::cout << "After set of_bytes_value(xinqi)  ..." << std::endl;
   foo.set_of_bytes_value(std::string("xinqi"));
   std::cout << foo.oneof_type_case() << std::endl;
   std::cout << foo.of_bytes_value() << std::endl;
   std::cout << foo.has_of_bytes_value() << std::endl;
-  std::cout << "After mutable_of_bar()..." << std::endl;
-  foo.mutable_of_bar()->set_nickname(std::string("hongyu"));
-  std::cout << foo.oneof_type_case() << std::endl;
-  std::cout << foo.of_bar().nickname() << std::endl;
-  std::cout << foo.has_of_bar() << std::endl;
-  std::cout << "After clear_of_bar()..." << std::endl;
-  foo.clear_of_bar();
-  std::cout << foo.oneof_type_case() << std::endl;
+  std::cout << "of_bar == nullptr: " << (of_bar == nullptr) <<  std::endl;
+  std::cout << "of_bar == nullptr: " << of_bar <<  std::endl;
+  std::cout << "of_bar == nullptr: " << of_bar->DebugString() <<  std::endl;
+  std::cout << "================" <<  std::endl;
+  
 
   std::cout << foo.map_int_int().size() << std::endl;
   auto* m = foo.mutable_map_int_int();
