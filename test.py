@@ -44,10 +44,11 @@ foo.set_name("Tom")
 foo.set_opt_int_value(20)
 (foo.mutable_bar()).CopyFrom(bar)
 
-print(bar == foo.mutable_bar())
+print("operator==", bar == foo.mutable_bar())
 foo.set_of_int_value(25)
 foo.set_of_string_value("binbin")
 foo.mutable_of_bar().set_nickname("hongyu")
-print(bar == foo.bar())
+foo.mutable_bar().set_nickname("hongyu")
+print("operator<", bar < foo.mutable_bar())
 
 print(foo)
